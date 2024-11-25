@@ -15,12 +15,28 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class LocationController extends AbstractController
 {
     #[Route('/', name: 'location')]
-    public function index(): JsonResponse
+    public function index(LocationRepository $repo): JsonResponse
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/LocationController.php',
-        ]);
+        $locations = $repo->findAll();
+        $json = [];
+        foreach ($locations as $location) {
+            $locationJson[] = [
+                'id' => $location->getId(),
+                'name' => $location->getName(),
+                'country' => $location->getCountryCode(),
+                'lat' => $location->getLatitude(),
+                'long' => $location->getLongitude()
+            ];
+
+            foreach ($location->getForecasts() as $forecast) {
+                $locationJson['forecast'][$forecast->getDate()->format('Y-m-d')] = [
+                    'celsius' => $forecast->getCelsius()
+                ];
+            }
+            $json[] = $locationJson;
+
+        }
+        return new JsonResponse($json);
     }
 
     #[Route('/create', name:'create-location', methods:['GET', 'POST'])]
@@ -119,16 +135,22 @@ class LocationController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/show', name:'id-location', methods: ['GET', 'POST'])]
-    public function show(Location $location): JsonResponse
+    #[Route('/{name}/show', name:'id-location', methods: ['GET', 'POST'])]
+    public function show(Location $location): JsonResponse    
     {
-        return new JsonResponse([
+        $json = [
             'id' => $location->getId(),
             'name' => $location->getName(),
             'country_code' => $location->getCountryCode(),
             'latitude' => $location->getLatitude(),
             'longitude' => $location->getLongitude()
-        ]);
+        ];
+        foreach ($location->getForecasts() as $forecast) {
+            $json['forecast'][$forecast->getDate()->format('Y-m-d')] = [
+                'celsius' => $forecast->getCelsius()
+            ];
+        }
+        return new JsonResponse($json);
     }
 
 
