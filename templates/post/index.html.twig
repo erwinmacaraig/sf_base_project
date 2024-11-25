@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% endblock %}
+
+{% block body %}
+<h1>List of all posts or posts from a specific user</h1>
+<p><a href="{{path('posts.show', {id:1})}}"> go to post </a></p>
+<p><a href="{{path('posts.user', {id:1})}}"> go to post from the user </a></p>
+<p><a href="{{path('posts.new')}}"> create a new blog post </a></p>
+<p><a href="{{path('posts.edit', {id:1})}}"> edit post </a></p>
+{% endblock %}

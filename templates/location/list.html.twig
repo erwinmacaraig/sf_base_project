@@ -1,0 +1,34 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+{% for message in app. flashes('success')%}
+    <div class="alert alert-success">
+        {{ message }}
+    </div>
+{% endfor %}
+<h1>List of Locations </h1>
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>Action</th>
+        </tr>
+        <tbody>
+            {% for location in list %}
+                <tr>
+                    <td>{{location.id}}</td>
+                    <td>{{location.city}}</td>
+                    <td>{{location.country_code}}
+                    <td>
+                        <a href="{{path('edit-location', {'location-id': location.id})}}">Edit</a> | 
+                        <a href="{{url('remove-location', {'id': location.id})}}">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </thead>
+    
+</table>
+{% endblock %}
