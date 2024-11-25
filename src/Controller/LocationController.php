@@ -17,7 +17,8 @@ class LocationController extends AbstractController
     #[Route('/', name: 'location')]
     public function index(LocationRepository $repo): JsonResponse
     {
-        $locations = $repo->findAll();
+        $locations = $repo->findAllWithForecasts();
+        
         $json = [];
         foreach ($locations as $location) {
             $locationJson[] = [
