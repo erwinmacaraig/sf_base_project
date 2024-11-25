@@ -119,6 +119,18 @@ class LocationController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/show', name:'id-location', methods: ['GET', 'POST'])]
+    public function show(Location $location): JsonResponse
+    {
+        return new JsonResponse([
+            'id' => $location->getId(),
+            'name' => $location->getName(),
+            'country_code' => $location->getCountryCode(),
+            'latitude' => $location->getLatitude(),
+            'longitude' => $location->getLongitude()
+        ]);
+    }
+
 
 }
 
