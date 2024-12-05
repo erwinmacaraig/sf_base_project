@@ -31,7 +31,9 @@
               <ul class="space-y-4">
                 <li>
                   <a class="hover:text-stone-500" href="{{ path('posts.user', { id: 1 }) }}">Jane Doe</a>
-                  <a href="{{ path('toggleFollow', { user: 1 }) }}" class="ml-3 inline font-bold text-sm px-4 py-1 text-white rounded bg-blue-500 hover:bg-blue-600">Unfollow</a>
+                  <a href="{{ path('toggleFollow', { user: 1 }) }}" class="ml-3 inline font-bold text-sm px-4 py-1 text-white rounded bg-blue-500 hover:bg-blue-600">
+                      {%trans%}Unfollow{%endtrans%}
+                  </a>
                 </li>
               </ul>
             </div>
