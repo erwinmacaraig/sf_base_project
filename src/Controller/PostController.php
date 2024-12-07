@@ -6,6 +6,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Post;
+
 class PostController extends AbstractController
 {
     #[Route('/{_locale?}', name: 'posts.index', methods:['GET'])]
@@ -15,9 +18,17 @@ class PostController extends AbstractController
     }
 
     #[Route('/post/new', name:'posts.new', methods:['GET', 'POST'])]
-    public function new(): Response
+    public function new(ManagerRegistry $doctrine): Response
     {
-        return $this->render('post/new.html.twig');
+        $entityManager = $doctrine->getManager();
+        $post = new Post();
+        $entityManager->persist($post);
+        $post->setTitle('Title');
+        $post->setContent('THis is my content');
+        $post->setCreatedAt(new \DateTimeImmutable());
+        $entityManager->flush();
+        return new Response('Save new post with id '. $post->getId());
+        // return $this->render('post/new.html.twig');
     }
 
     #[Route('/post/{_locale?}/{id}', name:'posts.show', methods:['GET'])]
