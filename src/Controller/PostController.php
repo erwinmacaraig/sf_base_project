@@ -9,49 +9,43 @@ use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Post;
 
+#[Route('/', requirements:['_locale' => 'en|ps'])]
 class PostController extends AbstractController
 {
-    #[Route('/{_locale?}', name: 'posts.index', methods:['GET'])]
-    public function index(): Response
+    #[Route('/{_locale}', name: 'posts.index', methods:['GET'])]
+    public function index(string $_locale='en'): Response
     {
+        
         return $this->render('post/index.html.twig');
     }
 
-    #[Route('/post/new', name:'posts.new', methods:['GET', 'POST'])]
-    public function new(ManagerRegistry $doctrine): Response
+    #[Route('/{_locale}/post/new', name:'posts.new', methods:['GET', 'POST'])]
+    public function new(): Response
     {
-        $entityManager = $doctrine->getManager();
-        $post = new Post();
-        $entityManager->persist($post);
-        $post->setTitle('Title');
-        $post->setContent('THis is my content');
-        $post->setCreatedAt(new \DateTimeImmutable());
-        $entityManager->flush();
-        return new Response('Save new post with id '. $post->getId());
-        // return $this->render('post/new.html.twig');
+        return $this->render('post/new.html.twig');
     }
 
-    #[Route('/post/{_locale?}/{id}', name:'posts.show', methods:['GET'])]
+    #[Route('/{_locale}/post//{id}', name:'posts.show', methods:['GET'])]
     public function show($id): Response
     {
         return $this->render('post/show.html.twig');
     }
 
-    #[Route('/post/{id}/edit', name:'posts.edit', methods: ['GET', 'POST'])]
+    #[Route('/{_locale}/post/{id}/edit', name:'posts.edit', methods: ['GET', 'POST'])]
     public function edit($id): Response 
     {
         // return $this->redirectToRoute('posts.index');
         return $this->render('post/edit.html.twig');
     }
 
-    #[Route('/post/{id}/delete', name:'posts.delete', methods:['GET', 'POST'])]
+    #[Route('/{_locale}/post/{id}/delete', name:'posts.delete', methods:['GET', 'POST'])]
     public function delete($id): Response 
     {
         return new Response('Delete post from database');
     }
 
       
-    #[Route('/posts/user/{id}', methods: ['GET'], name: 'posts.user')]
+    #[Route('/{_locale}/posts/user/{id}', methods: ['GET'], name: 'posts.user')]
     public function user($id): Response
     {
         return new Response(
@@ -63,7 +57,7 @@ class PostController extends AbstractController
         );
     }
 
-    #[Route('/toggleFollow/{user}', methods: ['GET'], name: 'toggleFollow')]
+    #[Route('/{_locale}/toggleFollow/{user}', methods: ['GET'], name: 'toggleFollow')]
     public function toggleFollow($user): Response
     {
         return new Response(
