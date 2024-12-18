@@ -12,7 +12,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class LoginController extends AbstractController
 {
     #[Route('/{_locale}/login', name: 'blog_login')]
-    public function index(string $_locale='en', AuthenticationUtils $authenticationUtils): Response
+    public function index(AuthenticationUtils $authenticationUtils, string $_locale='en'): Response
     {
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();

@@ -8,6 +8,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Post;
+use App\Form\PostType;
+
 
 #[Route('/', requirements:['_locale' => 'en|ph'])]
 class PostController extends AbstractController
@@ -23,7 +25,14 @@ class PostController extends AbstractController
     public function new(): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        return $this->render('post/new.html.twig');
+        $post = new Post();
+        $post->setTitle('Write a blog post');
+        $post->setContent('I should be using more of my elbow to draw the bow string');
+        $form = $this->createForm(PostType::class, $post);
+
+        return $this->render('post/new.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 
     #[Route('/{_locale}/post//{id}', name:'posts.show', methods:['GET'])]
