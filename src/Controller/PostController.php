@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Post;
 
-#[Route('/', requirements:['_locale' => 'en|ps'])]
+#[Route('/', requirements:['_locale' => 'en|ph'])]
 class PostController extends AbstractController
 {
     #[Route('/{_locale}', name: 'posts.index', methods:['GET'])]
@@ -22,6 +22,7 @@ class PostController extends AbstractController
     #[Route('/{_locale}/post/new', name:'posts.new', methods:['GET', 'POST'])]
     public function new(): Response
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         return $this->render('post/new.html.twig');
     }
 
@@ -34,6 +35,7 @@ class PostController extends AbstractController
     #[Route('/{_locale}/post/{id}/edit', name:'posts.edit', methods: ['GET', 'POST'])]
     public function edit($id): Response 
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         // return $this->redirectToRoute('posts.index');
         return $this->render('post/edit.html.twig');
     }
@@ -41,6 +43,7 @@ class PostController extends AbstractController
     #[Route('/{_locale}/post/{id}/delete', name:'posts.delete', methods:['GET', 'POST'])]
     public function delete($id): Response 
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         return new Response('Delete post from database');
     }
 
@@ -60,6 +63,7 @@ class PostController extends AbstractController
     #[Route('/{_locale}/toggleFollow/{user}', methods: ['GET'], name: 'toggleFollow')]
     public function toggleFollow($user): Response
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         return new Response(
             '<h1>Toggle like/dislike<br>' .
             'User id: ' . $user . '<br>' .
