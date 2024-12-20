@@ -2,13 +2,14 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-
-use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Post;
 use App\Form\PostType;
+use Doctrine\Persistence\ManagerRegistry;
+
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
 #[Route('/', requirements:['_locale' => 'en|ph'])]
@@ -22,13 +23,16 @@ class PostController extends AbstractController
     }
 
     #[Route('/{_locale}/post/new', name:'posts.new', methods:['GET', 'POST'])]
-    public function new(): Response
+    public function new(Request $request): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $post = new Post();
-        $post->setTitle('Write a blog post');
-        $post->setContent('I should be using more of my elbow to draw the bow string');
+        $post = new Post();        
         $form = $this->createForm(PostType::class, $post);
+        $form->handleRequest($request); 
+        if ($form->isSubmitted() && $form->isValid()){
+            $post = $form->getData();
+            return $this->redirectToRoute('posts.index');
+        }
 
         return $this->render('post/new.html.twig', [
             'form' => $form->createView()

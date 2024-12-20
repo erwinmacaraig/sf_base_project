@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\PostRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 #[ORM\Table(name: "posts")]
@@ -16,9 +17,23 @@ class Post
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Type('string')]
+    #[Assert\Length(
+        max: 20,
+        maxMessage: 'Title too long'
+    )]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\Type('string')]
+    #[Assert\Length(
+        max: 1000,
+        maxMessage: 'Content too long'
+    )]
+    #[Assert\Length(
+        min: 10,
+        minMessage: 'Content too short'
+    )]
     private ?string $content = null;
 
     #[ORM\Column]
