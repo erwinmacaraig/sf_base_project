@@ -46,11 +46,22 @@ class PostController extends AbstractController
     }
 
     #[Route('/{_locale}/post/{id}/edit', name:'posts.edit', methods: ['GET', 'POST'])]
-    public function edit($id): Response 
+    public function edit(Request $request): Response 
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $post = new Post();
+        $form = $this->createForm(PostType::class, $post);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $post = $form->getData();
+            return $this->redirectToRoute('posts.index');
+        }
+        
         // return $this->redirectToRoute('posts.index');
-        return $this->render('post/edit.html.twig');
+        return $this->render('post/edit.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 
     #[Route('/{_locale}/post/{id}/delete', name:'posts.delete', methods:['GET', 'POST'])]
