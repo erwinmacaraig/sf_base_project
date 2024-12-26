@@ -9,7 +9,7 @@ use App\Repository\PostRepository;
 use App\Repository\UserRepository;
 // these two are used for database operations 
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ManagerRegistry;
+// use Doctrine\Persistence\ManagerRegistry;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,10 +21,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class PostController extends AbstractController
 {
     #[Route('/{_locale}', name: 'posts.index', methods:['GET'])]
-    public function index(string $_locale='en', PostRepository $postRepository): Response
+    public function index(string $_locale='en'): Response
     {
-        // $posts = $postRepository->findBy(['user' => $this->getUser()]);
-        // dump($posts);
+        // $posts = $this->getUser()->getPosts();
+        // foreach($posts as $post) {
+        //     dump($post->getTitle());
+        // }
         return $this->render('post/index.html.twig');
     }
 
