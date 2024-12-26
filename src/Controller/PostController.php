@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Post;
+use App\Entity\User;
 use App\Form\PostType;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,19 +20,26 @@ class PostController extends AbstractController
     #[Route('/{_locale}', name: 'posts.index', methods:['GET'])]
     public function index(string $_locale='en'): Response
     {
-        
-        return $this->render('post/index.html.twig');
+        $user = $this->getUser();
+        foreach($user->getPosts() as $post) {
+            dump($post->getTitle());
+        }
+        // return $this->render('post/index.html.twig');
     }
 
     #[Route('/{_locale}/post/new', name:'posts.new', methods:['GET', 'POST'])]
-    public function new(Request $request): Response
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $post = new Post();        
+        $post = new Post();   
+        $post->setUser($this->getUser());
+        $post->setCreatedAt(new \DateTimeImmutable('now'));     
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request); 
         if ($form->isSubmitted() && $form->isValid()){
             $post = $form->getData();
+            $em->persist($post);
+            $em->flush();
             return $this->redirectToRoute('posts.index');
         }
 
