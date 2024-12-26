@@ -22,7 +22,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\Email(
-        message: 'The email {{value}} is not a valid email.'
+        message: 'The email {{ value }} is not a valid email.'
     )]
     private ?string $email = null;
 

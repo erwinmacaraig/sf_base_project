@@ -3,10 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Post;
-use App\Entity\User;
 use App\Form\PostType;
-use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\User;
+use App\Repository\PostRepository;
+use App\Repository\UserRepository;
+// these two are used for database operations 
 use Doctrine\ORM\EntityManagerInterface;
+// use Doctrine\Persistence\ManagerRegistry;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,28 +21,31 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class PostController extends AbstractController
 {
     #[Route('/{_locale}', name: 'posts.index', methods:['GET'])]
-    public function index(string $_locale='en'): Response
+    public function index(string $_locale='en', PostRepository $postRepository): Response
     {
-        $user = $this->getUser();
-        foreach($user->getPosts() as $post) {
-            dump($post->getTitle());
-        }
-        // return $this->render('post/index.html.twig');
+        // $posts = $this->getUser()->getPosts();
+        // foreach($posts as $post) {
+        //     dump($post->getTitle());
+        // }
+        $posts = $postRepository->findAll();
+        return $this->render('post/index.html.twig', [
+            'posts' => $posts
+        ]);
     }
 
     #[Route('/{_locale}/post/new', name:'posts.new', methods:['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $entityManagerInterface): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $post = new Post();   
+        $post = new Post();        
         $post->setUser($this->getUser());
-        $post->setCreatedAt(new \DateTimeImmutable('now'));     
+        $post->setCreatedAt(new \DateTimeImmutable('now'));
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request); 
         if ($form->isSubmitted() && $form->isValid()){
             $post = $form->getData();
-            $em->persist($post);
-            $em->flush();
+            $entityManagerInterface->persist($post);
+            $entityManagerInterface->flush();
             return $this->redirectToRoute('posts.index');
         }
 
