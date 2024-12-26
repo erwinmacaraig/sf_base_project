@@ -21,13 +21,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class PostController extends AbstractController
 {
     #[Route('/{_locale}', name: 'posts.index', methods:['GET'])]
-    public function index(string $_locale='en'): Response
+    public function index(string $_locale='en', PostRepository $postRepository): Response
     {
         // $posts = $this->getUser()->getPosts();
         // foreach($posts as $post) {
         //     dump($post->getTitle());
         // }
-        return $this->render('post/index.html.twig');
+        $posts = $postRepository->findAll();
+        return $this->render('post/index.html.twig', [
+            'posts' => $posts
+        ]);
     }
 
     #[Route('/{_locale}/post/new', name:'posts.new', methods:['GET', 'POST'])]
