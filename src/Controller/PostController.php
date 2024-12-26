@@ -4,6 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Post;
 use App\Form\PostType;
+use App\Entity\User;
+use App\Repository\PostRepository;
+use App\Repository\UserRepository;
+// these two are used for database operations 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -16,21 +21,26 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class PostController extends AbstractController
 {
     #[Route('/{_locale}', name: 'posts.index', methods:['GET'])]
-    public function index(string $_locale='en'): Response
+    public function index(string $_locale='en', PostRepository $postRepository): Response
     {
-        
+        // $posts = $postRepository->findBy(['user' => $this->getUser()]);
+        // dump($posts);
         return $this->render('post/index.html.twig');
     }
 
     #[Route('/{_locale}/post/new', name:'posts.new', methods:['GET', 'POST'])]
-    public function new(Request $request): Response
+    public function new(Request $request, EntityManagerInterface $entityManagerInterface): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $post = new Post();        
+        $post->setUser($this->getUser());
+        $post->setCreatedAt(new \DateTimeImmutable('now'));
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request); 
         if ($form->isSubmitted() && $form->isValid()){
             $post = $form->getData();
+            $entityManagerInterface->persist($post);
+            $entityManagerInterface->flush();
             return $this->redirectToRoute('posts.index');
         }
 
