@@ -7,6 +7,7 @@ use App\Form\ImageFormType;
 use App\Form\UserFormType;
 use App\Form\DeleteAccountFormType;
 use App\Form\ChangePasswordFormType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,15 +24,26 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard/profile', name: 'app_profile')]
-    public function profile(Request $request): Response
+    public function profile(Request $request, EntityManagerInterface $entityManagerInterface): Response
     {
         // change Image
         $image = new Image();
         $imageForm = $this->createForm(ImageFormType::class, $image);
         $imageForm->handleRequest($request);
+        $user = $this->getUser();
         if ($imageForm->isSubmitted() && $imageForm->isValid())
         {
-            $image = $imageForm->getData();
+            // $image = $imageForm->getData();
+            $image->setPath($imageForm->get('imageFile')->getData()->getClientOriginalName());
+            if ($user->getImage())
+            {
+                $oldImage = $entityManagerInterface->getRepository(Image::class)->find($user->getImage()->getId());
+                $entityManagerInterface->remove($oldImage);
+            }
+            $user->setImage($image);
+            $entityManagerInterface->persist($image);
+            $entityManagerInterface->persist($user);
+            $entityManagerInterface->flush();
             $this->addFlash('status-image', 'image-updated');
             return $this->redirectToRoute('app_profile');
         }

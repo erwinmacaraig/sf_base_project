@@ -9,6 +9,7 @@ use App\Repository\PostRepository;
 use App\Repository\UserRepository;
 // these two are used for database operations 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 // use Doctrine\Persistence\ManagerRegistry;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -55,21 +56,26 @@ class PostController extends AbstractController
     }
 
     #[Route('/{_locale}/post//{id}', name:'posts.show', methods:['GET'])]
-    public function show($id): Response
+    public function show(Post $post): Response
     {
-        return $this->render('post/show.html.twig');
+        return $this->render('post/show.html.twig', [
+            'post' => $post
+        ]);
     }
 
     #[Route('/{_locale}/post/{id}/edit', name:'posts.edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request): Response 
+    public function edit(Post $post, EntityManagerInterface $em, Request $request): Response 
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $post = new Post();
+        
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid())
         {
             $post = $form->getData();
+            $post->setUpdatedAt(new \DateTimeImmutable('now'));
+            $em->persist($post);
+            $em->flush();
             return $this->redirectToRoute('posts.index');
         }
         
@@ -80,23 +86,24 @@ class PostController extends AbstractController
     }
 
     #[Route('/{_locale}/post/{id}/delete', name:'posts.delete', methods:['GET', 'POST'])]
-    public function delete($id): Response 
+    public function delete(Post $post, ManagerRegistry $doctrine): Response 
     {
+        $entityManager = $doctrine->getManager();
+        $entityManager->remove($post);
+        $entityManager->flush();
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        return new Response('Delete post from database');
+        return $this->redirectToRoute('posts.index');
     }
 
       
     #[Route('/{_locale}/posts/user/{id}', methods: ['GET'], name: 'posts.user')]
-    public function user($id): Response
+    public function user(Request $request, PostRepository $repository, $id): Response
     {
-        return new Response(
-            '<h1>List of posts from specific user <br>' .
-            'User id: ' . $id . '<br>' .
-            'Named route that we will use in the view: ' .
-            $this->generateUrl('posts.user', ['id' => $id]) .
-            '</h1>'
-        );
+        $posts = $repository->findAllUserPosts($request->query->getInt('page', 1), $id);
+        return $this->render('post/index.html.twig', [
+            'posts' => $posts
+        ]);
+        
     }
 
     #[Route('/{_locale}/toggleFollow/{user}', methods: ['GET'], name: 'toggleFollow')]

@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Post;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -17,8 +18,8 @@ class PostType extends AbstractType
         $builder
             ->add('title', TextType::class)
             ->add('content', TextareaType::class)
-            // ->add('created_at')
-            // ->add('updated_at')
+            // ->add('created_at', HiddenType::class)
+            // ->add('updated_at', HiddenType::class)
             ->add('save', SubmitType::class, ['label' => 'Save Post'])
         ;
     }
