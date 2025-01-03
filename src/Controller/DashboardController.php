@@ -14,6 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 // use Symfony\Bundle\SecurityBundle\Security;
 
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+
 class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'app_dashboard')]
@@ -35,22 +37,34 @@ class DashboardController extends AbstractController
         if ($imageForm->isSubmitted() && $imageForm->isValid())
         {
             // $image = $imageForm->getData();
-            $image->setPath(
-                $imageForm
-                    ->get('imageFile')
-                    ->getData()
-                    ->getClientOriginalName()
-            );
-            if ($user->getImage())
+            $imageFile = $imageForm->get('imageFile')->getData();
+            if ($imageFile)
             {
-                $oldImage = $entityManagerInterface->getRepository(Image::class)->find($user->getImage()->getId());
-                $entityManagerInterface->remove($oldImage);
+                if ($user->getImage()?->getPath())
+                {
+                    unlink($this->getParameter('images_directory'). '/' . $user->getImage()->getPath());
+                }
+                $newFilename = uniqid(). '.' . $imageFile->guessExtension();
+                try {
+                    $imageFile->move(
+                        $this->getParameter('images_directory'),
+                        $newFilename
+                    );
+                } catch(FileException $e) {
+
+                }
+                $image->setPath($newFilename);
+                if ($user->getImage())
+                {
+                    $oldImage = $entityManagerInterface->getRepository(Image::class)->find($user->getImage()->getId());
+                    $entityManagerInterface->remove($oldImage);
+                }
+                $user->setImage($image);
+                $entityManagerInterface->persist($image);
+                $entityManagerInterface->persist($user);
+                $entityManagerInterface->flush();
+                $this->addFlash('status-image', 'image-updated');
             }
-            $user->setImage($image);
-            $entityManagerInterface->persist($image);
-            $entityManagerInterface->persist($user);
-            $entityManagerInterface->flush();
-            $this->addFlash('status-image', 'image-updated');
             return $this->redirectToRoute('app_profile');
         }
 
@@ -70,7 +84,9 @@ class DashboardController extends AbstractController
         $passwordForm = $this->createForm(ChangePasswordFormType::class, $user);
         $passwordForm->handleRequest($request);
         if ($passwordForm->isSubmitted() && $passwordForm->isValid()){
-            $user = $passwordForm->getData();
+            // $user = $passwordForm->getData();
+            $entityManagerInterface->persist($user);
+            $entityManagerInterface->flush();
             $this->addFlash('status-password', 'password-changed');
             return $this->redirectToRoute('app_profile');
         }
@@ -81,7 +97,7 @@ class DashboardController extends AbstractController
         if ($deleteAccountForm->isSubmitted() && $deleteAccountForm->isValid()) 
         {
             // $user = $deleteAccountForm->getData();
-            
+            $request->getSession()->invalidate();
             return $this->redirectToRoute('blog_logout');
         }
         return $this->render('dashboard/edit.html.twig', [
