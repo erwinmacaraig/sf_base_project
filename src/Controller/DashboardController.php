@@ -3,17 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Image;
-use App\Form\ImageFormType;
 use App\Form\UserFormType;
+use App\Form\ImageFormType;
+use App\Services\ImageUploader;
 use App\Form\DeleteAccountFormType;
 use App\Form\ChangePasswordFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 // use Symfony\Bundle\SecurityBundle\Security;
 
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class DashboardController extends AbstractController
@@ -27,7 +28,7 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard/profile', name: 'app_profile')]
-    public function profile(Request $request, EntityManagerInterface $entityManagerInterface): Response
+    public function profile(Request $request, EntityManagerInterface $entityManagerInterface, ImageUploader $imageUploader): Response
     {
         // change Image
         $image = new Image();
@@ -44,15 +45,7 @@ class DashboardController extends AbstractController
                 {
                     unlink($this->getParameter('images_directory'). '/' . $user->getImage()->getPath());
                 }
-                $newFilename = uniqid(). '.' . $imageFile->guessExtension();
-                try {
-                    $imageFile->move(
-                        $this->getParameter('images_directory'),
-                        $newFilename
-                    );
-                } catch(FileException $e) {
-
-                }
+                $newFilename = $imageUploader->upload($imageFile);
                 $image->setPath($newFilename);
                 if ($user->getImage())
                 {
