@@ -27,8 +27,8 @@ class LoginController extends AbstractController
         ]);
     }
 
-    #[Route('/logout', name: 'blog_logout', methods:['GET', 'POST'])]
-    public function logout()
+    #[Route('/{_locale}/logout', name: 'blog_logout', methods:['GET', 'POST'])]
+    public function logout(string $_locale='en')
     {
         //controller can be blank because Symfony will use its own logout
         throw new Exception('Dont\'t forget to activate logout in security.yaml');
