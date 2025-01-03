@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+// use Symfony\Bundle\SecurityBundle\Security;
 
 class DashboardController extends AbstractController
 {
@@ -30,11 +31,16 @@ class DashboardController extends AbstractController
         $image = new Image();
         $imageForm = $this->createForm(ImageFormType::class, $image);
         $imageForm->handleRequest($request);
-        $user = $this->getUser();
+        $user = $this->getUser(); // this is the way how we get the currently logged in user
         if ($imageForm->isSubmitted() && $imageForm->isValid())
         {
             // $image = $imageForm->getData();
-            $image->setPath($imageForm->get('imageFile')->getData()->getClientOriginalName());
+            $image->setPath(
+                $imageForm
+                    ->get('imageFile')
+                    ->getData()
+                    ->getClientOriginalName()
+            );
             if ($user->getImage())
             {
                 $oldImage = $entityManagerInterface->getRepository(Image::class)->find($user->getImage()->getId());
@@ -49,11 +55,13 @@ class DashboardController extends AbstractController
         }
 
         // change email and name
-        $user = $this->getUser(); // this is the way how we get the currently logged in user
+        
         $userForm = $this->createForm(UserFormType::class, $user);
         $userForm->handleRequest($request);
         if ($userForm->isSubmitted() && $userForm->isValid()){
-            $user = $userForm->getData();
+            // $user = $userForm->getData();
+            $entityManagerInterface->persist($user);
+            $entityManagerInterface->flush();
             $this->addFlash('status-profile-information', 'user-updated');
             return $this->redirectToRoute('app_profile');
         }
@@ -72,8 +80,9 @@ class DashboardController extends AbstractController
         $deleteAccountForm->handleRequest($request);
         if ($deleteAccountForm->isSubmitted() && $deleteAccountForm->isValid()) 
         {
-            $user = $deleteAccountForm->getData();
-            return $this->redirectToRoute('app_profile');
+            // $user = $deleteAccountForm->getData();
+            
+            return $this->redirectToRoute('blog_logout');
         }
         return $this->render('dashboard/edit.html.twig', [
             'imageForm' => $imageForm->createView(),
