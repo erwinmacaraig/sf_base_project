@@ -64,4 +64,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function isFollowing($authUser, $user): array
+    {
+        return $this->createQueryBuilder('u')
+            ->select('u.id')
+            ->andWhere('u.id = :authUser')
+            ->andWhere('following = :user')
+            ->innerJoin('u.following', 'following')
+            ->setParameter('authUser', $authUser)
+            ->setParameter('user', $user)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getResult()
+
+        ;
+    }
 }
