@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PostRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -45,6 +47,20 @@ class Post
     #[ORM\ManyToOne(inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
+
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'likedPosts')]
+    // #[ORM\JoinTable(name:"likes")]
+    private Collection $usersThatLike;
+
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'dislikedPosts')]
+    // #[ORM\JoinTable(name:"dislikes")]
+    private Collection $usersThatDontLike;
+
+    public function __construct()
+    {
+        $this->usersThatLike = new ArrayCollection();
+        $this->usersThatDontLike = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -107,6 +123,60 @@ class Post
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsersThatLike(): Collection
+    {
+        return $this->usersThatLike;
+    }
+
+    public function addUsersThatLike(User $usersThatLike): static
+    {
+        if (!$this->usersThatLike->contains($usersThatLike)) {
+            $this->usersThatLike->add($usersThatLike);
+            $usersThatLike->addLikedPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsersThatLike(User $usersThatLike): static
+    {
+        if ($this->usersThatLike->removeElement($usersThatLike)) {
+            $usersThatLike->removeLikedPost($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsersThatDontLike(): Collection
+    {
+        return $this->usersThatDontLike;
+    }
+
+    public function addUsersThatDontLike(User $usersThatDontLike): static
+    {
+        if (!$this->usersThatDontLike->contains($usersThatDontLike)) {
+            $this->usersThatDontLike->add($usersThatDontLike);
+            $usersThatDontLike->addDislikedPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsersThatDontLike(User $usersThatDontLike): static
+    {
+        if ($this->usersThatDontLike->removeElement($usersThatDontLike)) {
+            $usersThatDontLike->removeDislikedPost($this);
+        }
 
         return $this;
     }

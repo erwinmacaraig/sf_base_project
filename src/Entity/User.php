@@ -52,11 +52,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     
     private Collection $following;
 
+    #[ORM\ManyToMany(targetEntity: Post::class, inversedBy: 'usersThatLike')]
+    #[ORM\JoinTable(name:"likes")]
+    private Collection $likedPosts;
+
+    #[ORM\ManyToMany(targetEntity: Post::class, inversedBy: 'usersThatDontLike')]
+    #[ORM\JoinTable(name:"dislikes")]
+    private Collection $dislikedPosts;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->followers = new ArrayCollection();
         $this->following = new ArrayCollection();
+        $this->likedPosts = new ArrayCollection();
+        $this->dislikedPosts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -249,6 +259,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->following->removeElement($following)) {
             $following->removeFollower($this);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Post>
+     */
+    public function getLikedPosts(): Collection
+    {
+        return $this->likedPosts;
+    }
+
+    public function addLikedPost(Post $likedPost): static
+    {
+        if (!$this->likedPosts->contains($likedPost)) {
+            $this->likedPosts->add($likedPost);
+        }
+
+        return $this;
+    }
+
+    public function removeLikedPost(Post $likedPost): static
+    {
+        $this->likedPosts->removeElement($likedPost);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Post>
+     */
+    public function getDislikedPosts(): Collection
+    {
+        return $this->dislikedPosts;
+    }
+
+    public function addDislikedPost(Post $dislikedPost): static
+    {
+        if (!$this->dislikedPosts->contains($dislikedPost)) {
+            $this->dislikedPosts->add($dislikedPost);
+        }
+
+        return $this;
+    }
+
+    public function removeDislikedPost(Post $dislikedPost): static
+    {
+        $this->dislikedPosts->removeElement($dislikedPost);
 
         return $this;
     }
