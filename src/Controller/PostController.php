@@ -55,7 +55,7 @@ class PostController extends AbstractController
         ]);
     }
 
-    #[Route('/{_locale}/post//{id}', name:'posts.show', methods:['GET'])]
+    #[Route('/{_locale}/post/{id}', name:'posts.show', methods:['GET'])]
     public function show(Post $post, EntityManagerInterface $entityManager): Response
     {
         $isFollowing = $entityManager->getRepository(User::class)->isFollowing($this->getUser(), $post->getUser()) ?? false;

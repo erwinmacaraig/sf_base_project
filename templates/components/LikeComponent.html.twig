@@ -1,0 +1,46 @@
+<div class="flex" {{ attributes }}>
+{% if app.user %}
+	
+	{# <strong>{{ this.randomNumber }}</strong>
+	<button data-action="live#$render">Generate New Number</button> #}
+
+	<a id="{{ post.id }}" title="undo like" class="cursor-pointer" data-action="live#action" data-live-action-param="undoLike">
+		{{ component('LikeIconComponent', {class: 'fill-green-500 hover:stroke-cyan-700'}) }}
+	</a>
+
+	<a title="you disliked this" class="post">
+		{{ component('LikeIconComponent', {class: 'fill-green-300'}) }}
+	</a>
+	<a id="{{ post.id }}" title="like" class="cursor-pointer" data-action="live#action" data-live-action-param="like">
+		{{ component('LikeIconComponent', {class: 'fill-green-300 hover:stroke-cyan-700'}) }}
+	</a>	
+	({{ this.likes }})
+
+	
+	<a title="undo dislike" class="ml-2 cursor-pointer" data-action="live#action" data-live-action-param="undoDislike">
+		{{ component('UnlikeIconComponent', {class: 'fill-red-500 hover:stroke-cyan-700'}) }}
+	</a>
+	
+	<a title="you like this post" class="ml-2">
+		{{ component('UnlikeIconComponent', {class: 'fill-red-300'}) }}
+	</a>
+	
+	<a title="dislike" class="ml-2 cursor-pointer" data-action="live#action" data-live-action-param="dislike">
+		{{ component('UnlikeIconComponent', {class: 'fill-red-300 hover:stroke-cyan-700'}) }}
+	</a>
+	({{ this.dislikes }})
+
+    {% else %}
+    <a href="#" title="login to like" class="pointer-events-none">
+			{{ component('LikeIconComponent', {class: 'fill-green-300'}) }}
+		</a>
+		(12)
+        login to like
+		<a href="#" title="login to dislike" class="ml-2 pointer-events-none">
+			{{ component('UnlikeIconComponent', {class: 'fill-red-300'}) }}
+		</a>
+		(2)
+        login to dislike
+        {% endif %}
+</div>
+
