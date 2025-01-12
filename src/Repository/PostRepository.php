@@ -27,8 +27,12 @@ class PostRepository extends ServiceEntityRepository
     public function findAllPosts(int $page)
     {
         $dbquery = $this->createQueryBuilder('p')
-        ->leftJoin('p.user', 'u')
+        ->leftJoin('p.user', 'u')        
         ->addSelect('u')
+        ->leftJoin('p.usersThatLike', 'l')
+        ->addSelect('COUNT(l) AS HIDDEN likes')
+        ->orderBy('likes', 'DESC')
+        ->groupBy('p')
         ->getQuery()
         ->getResult();
 
@@ -41,9 +45,13 @@ class PostRepository extends ServiceEntityRepository
         $dbquery = $this->createQueryBuilder('p')
         ->leftJoin('p.user', 'u')
         ->addSelect('u')
+        ->addSelect('COUNT(l) AS HIDDEN likes')
+        ->leftJoin('p.usersThatLike', 'l')
+        ->orderBy('likes', 'DESC')
         ->where('p.user = :id')
         ->setParameter('id', $userId)
-        ->getQuery()
+        ->groupBy('p')
+        ->getQuery()        
         ->getResult()
         ;
 
@@ -78,6 +86,32 @@ class PostRepository extends ServiceEntityRepository
                     ->getQuery()
                     ->getResult()
                 ;
+    }
+    public function searchPosts(string $query)
+    {
+        $querybuilder = $this->createQueryBuilder('p');
+
+        $searchTerms = $this->prepareQuery($query);
+        foreach($searchTerms as $key => $term)
+        {
+            $querybuilder
+                ->orWhere('p.title LIKE :t_'.$key)
+                ->orWhere('p.content LIKE :t_'.$key)
+                ->setParameter('t_'.$key, '%'.trim($term).'%');
+        }
+        $dbQuery = $querybuilder
+                    ->select('p.title', 'p.id')
+                    ->getQuery()
+                    ->getResult();
+        return $dbQuery;
+    }
+
+    private function prepareQuery(string $query): array
+    {
+        $terms = array_unique(explode(' ', $query));
+        return array_filter($terms, function($term){
+            return 2 <= mb_strlen($term);
+        });
     }
 
 //    /**
