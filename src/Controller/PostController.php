@@ -22,7 +22,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class PostController extends AbstractController
 {
     #[Route('/{_locale}', name: 'posts.index', methods:['GET'])]
-    public function index(Request $request, string $_locale='en', PostRepository $postRepository): Response
+    public function index(Request $request, PostRepository $postRepository, string $_locale='en'): Response
     {
         // $posts = $this->getUser()->getPosts();
         // foreach($posts as $post) {
@@ -55,11 +55,18 @@ class PostController extends AbstractController
         ]);
     }
 
-    #[Route('/{_locale}/post//{id}', name:'posts.show', methods:['GET'])]
-    public function show(Post $post): Response
+    #[Route('/{_locale}/post/{id}', name:'posts.show', methods:['GET'])]
+    public function show(Post $post, EntityManagerInterface $entityManager): Response
     {
+        $isFollowing = $entityManager->getRepository(User::class)->isFollowing($this->getUser(), $post->getUser()) ?? false;
+        $isLiked = $entityManager->getRepository(Post::class)->isLiked($this->getUser(), $post->getUser()) ?? false;
+        $isDisliked = $entityManager->getRepository(Post::class)->isDisliked($this->getUser(), $post->getUser()) ?? false;
+
         return $this->render('post/show.html.twig', [
-            'post' => $post
+            'post' => $post,
+            'isFollowing' => $isFollowing,
+            'isLiked' => $isLiked,
+            'isDisliked' => $isDisliked
         ]);
     }
 
@@ -67,6 +74,7 @@ class PostController extends AbstractController
     public function edit(Post $post, EntityManagerInterface $em, Request $request): Response 
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $this->denyAccessUnlessGranted('POST_EDIT', $post);
         
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
@@ -101,21 +109,27 @@ class PostController extends AbstractController
     {
         $posts = $repository->findAllUserPosts($request->query->getInt('page', 1), $id);
         return $this->render('post/index.html.twig', [
-            'posts' => $posts
+            'posts' => $posts,
+            'user' => $posts[0]?->getUser()->getName()
         ]);
         
     }
 
     #[Route('/{_locale}/toggleFollow/{user}', methods: ['GET'], name: 'toggleFollow')]
-    public function toggleFollow($user): Response
+    public function toggleFollow(User $user, EntityManagerInterface $entityManager, Request $request): Response
     {
+
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        return new Response(
-            '<h1>Toggle like/dislike<br>' .
-            'User id: ' . $user . '<br>' .
-            'Named route that we will use in the view: ' .
-            $this->generateUrl('toggleFollow', ['user' => $user]) .
-            '</h1>'
-        );
+        $isFollowing = $entityManager->getRepository(User::class)->isFollowing($this->getUser(), $user) ?? false;
+        
+        if ($isFollowing)
+        {
+            $this->getUser()->removeFollowing($user);
+        } else {
+            $this->getUser()->addFollowing($user);
+        }
+        $entityManager->flush();
+        $route = $request->headers->get('referer');
+        return $this->redirect($route);
     }
 }
