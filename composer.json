@@ -14,6 +14,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.3",
         "knplabs/knp-paginator-bundle": "^5.9",
+        "lexik/jwt-authentication-bundle": "^2.21",
         "runtime/frankenphp-symfony": "^0.2.0",
         "sensio/framework-extra-bundle": "^6.2",
         "symfony/console": "5.4.*",
