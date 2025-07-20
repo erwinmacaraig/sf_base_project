@@ -96,6 +96,7 @@ class PostController extends AbstractController
     #[Route('/{_locale}/post/{id}/delete', name:'posts.delete', methods:['GET', 'POST'])]
     public function delete(Post $post, ManagerRegistry $doctrine): Response 
     {
+        $this->denyAccessUnlessGranted('POST_DELETE', $post);
         $entityManager = $doctrine->getManager();
         $entityManager->remove($post);
         $entityManager->flush();
