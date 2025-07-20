@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Controller;
+
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Message\PurchaseConfirmationNotification;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
+class StockTransactionController extends AbstractController
+{
+    #[Route('/buy', name: 'buy-stock')]
+    public function index(MessageBusInterface $bus): Response
+    {
+        $order = new class {
+            public function getBuyer(): object 
+            {
+                return new class 
+                {
+                    public function getEmail(): string {
+                        return 'test@text.com';
+                    }
+                };
+            }
+        
+        
+        };
+        // 1. Dispatch confirmation message 
+        $bus->dispatch(new PurchaseConfirmationNotification($order));
+
+        // 2. Display confirmation to the user 
+
+        return $this->render('stocks/example.html.twig');
+    }
+}
