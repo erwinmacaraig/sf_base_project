@@ -22,3 +22,5 @@ framework:
             # 'App\Message\YourMessage': async
             'App\Message\PurchaseConfirmationNotification': async
             'App\Message\Command\SaveOrder': sync
+            'App\Message\Event\OrderSavedEvent': async
+
