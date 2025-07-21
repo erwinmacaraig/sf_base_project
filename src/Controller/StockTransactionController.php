@@ -14,12 +14,16 @@ class StockTransactionController extends AbstractController
     public function index(MessageBusInterface $bus): Response
     {
         $order = new class {
+            public function getId(){
+                return 2;
+            }
+
             public function getBuyer(): object 
             {
                 return new class 
                 {
                     public function getEmail(): string {
-                        return 'test@text.com';
+                        return 'erwin.macaraig@gmail.com';
                     }
                 };
             }

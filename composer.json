@@ -16,6 +16,7 @@
         "knplabs/knp-paginator-bundle": "^5.9",
         "knplabs/knp-snappy-bundle": "^1.10",
         "lexik/jwt-authentication-bundle": "^2.21",
+        "mpdf/mpdf": "^6.1",
         "runtime/frankenphp-symfony": "^0.2.0",
         "sensio/framework-extra-bundle": "^6.2",
         "symfony/console": "5.4.*",
