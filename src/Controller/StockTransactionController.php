@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Message\Command\SaveOrder;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Message\PurchaseConfirmationNotification;
@@ -31,7 +32,8 @@ class StockTransactionController extends AbstractController
         
         };
         // 1. Dispatch confirmation message 
-        $bus->dispatch(new PurchaseConfirmationNotification($order->getId()));
+        // $bus->dispatch(new PurchaseConfirmationNotification($order->getId()));
+        $bus->dispatch(new SaveOrder());
 
         // 2. Display confirmation to the user 
 

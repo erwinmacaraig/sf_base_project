@@ -18,9 +18,7 @@ class PurchaseConfirmationNotificationHandler implements MessageHandlerInterface
     }
     public function __invoke(PurchaseConfirmationNotification $notification)
     {
-        // 1, Create a PDF
-            echo "Creating a PDF Contract note <br />";
-        
+        // 1. Create a PDF
         $content = "<h1>Contract Note for order {$notification->getOrderId()}</h1>";
         $content .= '<p>Total price: <b>P14578.02</b></p>';
 
