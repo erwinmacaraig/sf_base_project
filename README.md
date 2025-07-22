@@ -49,3 +49,93 @@ Symfony Docker is available under the MIT License.
 ## Credits
 
 Created by [Kévin Dunglas](https://dunglas.dev), co-maintained by [Maxime Helias](https://twitter.com/maxhelias) and sponsored by [Les-Tilleuls.coop](https://les-tilleuls.coop).
+
+## Installed Node and NPM
+1. Update repository
+```
+apt update
+```
+
+2. Install Node 
+```
+apt install nodejs
+```
+
+3. Install NPM
+```
+apt install npm
+```
+
+## Installing Tailwind
+
+1. Install Webpack Encore
+```
+composer require symfony/webpack-encore-bundle
+```
+
+2. Install Tailwind CSS
+```
+npm install -D tailwindcss postcss postcss-loader autoprefixer
+npx tailwindcss init -p
+```
+
+3. Enable PostCSS support
+In your webpack.config.js file, enable the PostCSS Loader.
+```
+Encore
+  // ...
+  .enablePostCssLoader()
+;
+```
+
+4. Configure your template paths
+Add the paths to all of your template files in your tailwind.config.js file.
+
+```
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./assets/**/*.js",
+    "./templates/**/*.html.twig",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+5. Add the Tailwind directives to your CSS
+Add the @tailwind directives for each of Tailwind’s layers to your ./assets/styles/app.css file.
+```
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+6. Start your build process
+At the terminal, Run your build process with npm run watch.
+```
+npm run watch
+```
+Note that you will always need to run this command to wath your CSS and Javascript so that it is compiled in real time.
+
+7. Start using Tailwind in your project
+Make sure your compiled CSS is included in the <head> then start using Tailwind’s utility classes to style your content.
+```html
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% block stylesheets %}
+    {{ encore_entry_link_tags('app') }}
+  {% endblock %}
+</head>
+<body>
+  <h1 class="text-3xl font-bold underline">
+    Hello world!
+  </h1>
+</body>
+</html>
+```
