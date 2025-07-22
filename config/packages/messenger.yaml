@@ -1,0 +1,35 @@
+framework:
+    messenger:
+        # reset services after consuming messages
+        # reset_on_message: true
+
+        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
+        failure_transport: failed
+        default_bus: command.bus
+
+        buses:
+            command.bus: ~
+            event.bus: ~
+
+        transports:
+            # https://symfony.com/doc/current/messenger.html#transport-configuration
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                retry_strategy:
+                    service: null
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 0
+            
+            sync: 'sync://'
+            failed:
+                dsn: 'doctrine://default?queue_name=failed&table_name=queue_messages'
+
+        routing:
+            # Route your messages to the transports
+            # 'App\Message\YourMessage': async
+            'App\Message\PurchaseConfirmationNotification': async
+            'App\Message\Command\SaveOrder': sync
+            'App\Message\Event\OrderSavedEvent': async
+
