@@ -14,6 +14,9 @@ class OrderSavedEventHandler implements MessageHandlerInterface {
     }
     public function __invoke(OrderSavedEvent $event)
     {
+        // throwing an exception manually
+        throw new \RuntimeException('ORDER COULD NOT BE FOUND');
+
         // 1. Create a PDF
         $content = "<h1>Contract Note for order {$event->getOrderId()}</h1>";
         $content .= '<p>Total price: <b>P32589.02</b></p>';
