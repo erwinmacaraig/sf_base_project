@@ -1,10 +1,10 @@
 framework:
     messenger:
         # reset services after consuming messages
-        reset_on_message: true
+        # reset_on_message: true
 
         # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
-        # failure_transport: failed
+        failure_transport: failed
         default_bus: command.bus
 
         buses:
@@ -17,12 +17,14 @@ framework:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 retry_strategy:
                     service: null
-                    max_retries: 5
+                    max_retries: 3
                     delay: 1000
                     multiplier: 2
                     max_delay: 0
-            # failed: 'doctrine://default?queue_name=failed'
+            
             sync: 'sync://'
+            failed:
+                dsn: 'doctrine://default?queue_name=failed&table_name=queue_messages'
 
         routing:
             # Route your messages to the transports
